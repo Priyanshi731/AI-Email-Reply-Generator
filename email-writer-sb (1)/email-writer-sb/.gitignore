@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 # 🔐 Protect API Key
-src/main/resources/application.properties
+email-writer-sb (1)/email-writer-sb/src/main/resources/application.properties
