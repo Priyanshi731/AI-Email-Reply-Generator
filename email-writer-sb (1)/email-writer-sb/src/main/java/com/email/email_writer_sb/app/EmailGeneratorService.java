@@ -57,29 +57,61 @@ public class EmailGeneratorService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+
+        System.out.println("Gemini Raw Response: " + response);
 //extract response and return response
         return extractResponseContent(response);
 
     }
 
-    private String extractResponseContent(String response) {
-        try{
-            ObjectMapper mapper=new ObjectMapper();
-            JsonNode rootNode=mapper.readTree(response);
-            return rootNode.path("candidates")
-                    .get(0)
-                    .path("content")
-                    .path("parts")
-                    .get(0)
-                    .path("text")
-                    .asText();
-        }
-        catch(Exception e)
-        {
-            return "Error processing request:" + e.getMessage();
-        }
-    }
+//    private String extractResponseContent(String response) {
+//        try{
+//            ObjectMapper mapper=new ObjectMapper();
+//            JsonNode rootNode=mapper.readTree(response);
+//            return rootNode.path("candidates")
+//                    .get(0)
+//                    .path("content")
+//                    .path("parts")
+//                    .get(0)
+//                    .path("text")
+//                    .asText();
+//        }
+//        catch(Exception e)
+//        {
+//            return "Error processing request:" + e.getMessage();
+//        }
+//    }
+private String extractResponseContent(String response) {
+    try {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.readTree(response);
 
+        // If Gemini returns error
+        if (rootNode.has("error")) {
+            return "Gemini API Error: " + rootNode.get("error").get("message").asText();
+        }
+
+        JsonNode candidates = rootNode.path("candidates");
+
+        if (candidates.isArray() && candidates.size() > 0) {
+            JsonNode content = candidates.get(0).path("content");
+            JsonNode parts = content.path("parts");
+
+            if (parts.isArray() && parts.size() > 0) {
+                JsonNode textNode = parts.get(0).path("text");
+
+                if (!textNode.isMissingNode()) {
+                    return textNode.asText();
+                }
+            }
+        }
+
+        return "AI could not generate reply.";
+
+    } catch (Exception e) {
+        return "Error processing Gemini response: " + e.getMessage();
+    }
+}
     private String buildPrompt(EmailRequest emailRequest) {
         StringBuilder prompt=new StringBuilder();
         prompt.append("Generate a professional email reply for the following email content.PLease don't generate a subject line ");
