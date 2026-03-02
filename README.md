@@ -47,6 +47,15 @@ Gmail → Chrome Extension → React UI → Spring Boot API → Gemini AI → Re
 
 ---
 
+## 📸 Screenshots
+
+### Frontend UI
+![Frontend](screenshots/frontend.png)
+
+### Backend (MongoDB)
+![Backend](screenshots/backend.png)
+
+
 ## 📂 Folder Structure
 
 ```
